@@ -1,0 +1,50 @@
+//Definición de pines para el driver que controla los motores de nuestro proyecto
+#define AIN1 6   // Control de motores 1 y 3
+#define AIN2 5   
+#define BIN1 9   // Control de motores 2 y 4
+#define BIN2 10  
+
+// Niveles de potencia
+#define VELOCIDAD_MAX 255
+#define VELOCIDAD_SUSPENDIDO 195  
+#define VELOCIDAD_MIN 100  
+
+void setup() {
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+  pinMode(BIN1, OUTPUT);
+  pinMode(BIN2, OUTPUT);
+}
+
+void loop() {
+  //  1. Elevar el dron 
+  analogWrite(AIN1, VELOCIDAD_MAX);
+  analogWrite(AIN2, 0);
+  analogWrite(BIN1, VELOCIDAD_MAX);
+  analogWrite(BIN2, 0);
+  delay(5000);  // Mantenerse en el aire por 5 segundos
+
+  // *** 2. Mantenerse suspendido en el aire ***
+  analogWrite(AIN1, VELOCIDAD_SUSPENDIDO);
+  analogWrite(AIN2, 0);
+  analogWrite(BIN1, VELOCIDAD_SUSPENDIDO);
+  analogWrite(BIN2, 0);
+  delay(7000);  // Mantenerse suspendido por 7 segundos
+
+  //  3. Descenso suave
+  for (int velocidad = VELOCIDAD_SUSPENDIDO; velocidad >= 0; velocidad -= 10) {
+    analogWrite(AIN1, velocidad);
+    analogWrite(AIN2, 0);
+    analogWrite(BIN1, velocidad);
+    analogWrite(BIN2, 0);
+    delay(300);  // Reducción progresiva
+  }
+
+  // Apagar motores al final
+  analogWrite(AIN1, 0);
+  analogWrite(AIN2, 0);
+  analogWrite(BIN1, 0);
+  analogWrite(BIN2, 0);
+
+  while (1);  
+}
