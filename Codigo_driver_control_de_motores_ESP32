@@ -1,0 +1,43 @@
+from machine import Pin, PWM
+import time
+
+# Definir los pines 
+AIN1 = PWM(Pin(6), freq=1000)   # Motores 1 y 3
+AIN2 = PWM(Pin(5), freq=1000)
+BIN1 = PWM(Pin(9), freq=1000)   # Motores 2 y 4
+BIN2 = PWM(Pin(10), freq=1000)
+
+# Definir niveles de potencia (rango 0 - 1023 en ESP32)
+VELOCIDAD_MAX = 1023       # Potencia máxima 
+VELOCIDAD_SUSPENDIDO = 800  # Potencia para mantenerse en el aire
+VELOCIDAD_MIN = 400       # Potencia mínima antes de apagarse
+
+def mover_motores(velocidad):
+    """Controla la velocidad de todos los motores."""
+    AIN1.duty(velocidad)
+    AIN2.duty(0)
+    BIN1.duty(velocidad)
+    BIN2.duty(0)
+
+def detener_motores():
+    """Apaga todos los motores."""
+    AIN1.duty(0)
+    AIN2.duty(0)
+    BIN1.duty(0)
+    BIN2.duty(0)
+
+# *** 1. Elevar el dron ***
+mover_motores(VELOCIDAD_MAX)
+time.sleep(5)  # Mantenerse en el aire por 5 segundos
+
+# *** 2. Mantenerse suspendido en el aire ***
+mover_motores(VELOCIDAD_SUSPENDIDO)
+time.sleep(7)  # Mantenerse suspendido por 7 segundos
+
+# *** 3. Descenso suave ***
+for velocidad in range(VELOCIDAD_SUSPENDIDO, 0, -50):
+    mover_motores(velocidad)
+    time.sleep(0.3)  # Reducción progresiva
+
+# Apagar motores al final
+detener_motores()
